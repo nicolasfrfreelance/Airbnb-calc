@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcul Rentabilité Airbnb</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>🏠 Rentabilité Airbnb</h1>
+        <nav>
+           <nav>
+    <button class="nav-btn active" data-tab="calendar">📅 Calendrier</button>
+    <button class="nav-btn" data-tab="settings">⚙️ Tarifs</button>
+    <button class="nav-btn" data-tab="charges">💸 Charges</button>
+    <button class="nav-btn" data-tab="loan">🏦 Financement</button>
+    <button class="nav-btn" data-tab="summary">📊 Récapitulatif</button>
+    <button class="nav-btn" data-tab="simulations">💾 Simulations</button>
+</nav>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Onglet Calendrier -->
+        <section id="calendar" class="tab active">
+            <div class="mode-toggle">
+                <button id="modeCalendar" class="mode-btn active">📅 Mode Calendrier</button>
+                <button id="modeQuick" class="mode-btn">⚡ Mode Remplissage rapide</button>
+            </div>
+            <div class="toolbar" id="calendarToolbar">
+                <div class="season-picker">
+                    <label>Saison sélectionnée :</label>
+                    <button class="season-btn red active" data-season="high">Haute</button>
+                    <button class="season-btn orange" data-season="medium">Moyenne</button>
+                    <button class="season-btn blue" data-season="low">Basse</button>
+                    <button class="season-btn clear" data-season="none">Effacer</button>
+                </div>
+                <div class="year-picker">
+                    <button id="prevYear">◀</button>
+                    <span id="currentYear">2025</span>
+                    <button id="nextYear">▶</button>
+                </div>
+            </div>
+            <div class="quick-fill" id="quickFillSection">
+                <h3>⚡ Remplissage rapide</h3>
+
+                <div class="quick-fill-grid">
+                    <div class="quick-fill-item high">
+                        <label>🔴 Haute saison</label>
+                        <div class="qf-row">
+                            <span>Jours :</span>
+                            <input type="number" id="qfHigh" min="0" max="365" value="100">
+                        </div>
+                        <div class="qf-row">
+                            <span>Occupation :</span>
+                            <input type="number" id="qfOccHigh" min="0" max="100" value="50">
+                            <span>%</span>
+                        </div>
+                    </div>
+
+                    <div class="quick-fill-item medium">
+                        <label>🟠 Moyenne saison</label>
+                        <div class="qf-row">
+                            <span>Jours :</span>
+                            <input type="number" id="qfMedium" min="0" max="365" value="100">
+                        </div>
+                        <div class="qf-row">
+                            <span>Occupation :</span>
+                            <input type="number" id="qfOccMedium" min="0" max="100" value="50">
+                            <span>%</span>
+                        </div>
+                    </div>
+
+                    <div class="quick-fill-item low">
+                        <label>🔵 Basse saison</label>
+                        <div class="qf-row">
+                            <span>Jours :</span>
+                            <input type="number" id="qfLow" min="0" max="365" value="160">
+                        </div>
+                        <div class="qf-row">
+                            <span>Occupation :</span>
+                            <input type="number" id="qfOccLow" min="0" max="100" value="50">
+                            <span>%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="qf-average">
+                    📊 Taux d'occupation moyen : <strong id="qfAvgRate">0.0</strong> %
+                    <small>(calculé automatiquement)</small>
+                </div>
+
+                <div class="qf-actions">
+                    <button id="qfReset" class="btn-secondary">Réinitialiser</button>
+                </div>
+                <div class="quick-actions" style="margin-top: 1rem; text-align: center;">
+                    <button id="qfApply" class="btn-primary">✅ Appliquer le calcul</button>
+                </div>
+
+            </div>
+            <div id="calendarContainer"></div>
+        </section>
+
+        <!-- Onglet Tarifs -->
+        <section id="settings" class="tab">
+            <h2>Paramétrage des tarifs (€/nuit)</h2>
+            <div class="price-card">
+                <div class="price-row">
+                    <span class="dot red"></span>
+                    <label>Haute saison</label>
+                    <input type="number" id="priceHigh" min="0" value="150">
+                    <span>€</span>
+                </div>
+                <div class="price-row">
+                    <span class="dot orange"></span>
+                    <label>Moyenne saison</label>
+                    <input type="number" id="priceMedium" min="0" value="100">
+                    <span>€</span>
+                </div>
+                <div class="price-row">
+                    <span class="dot blue"></span>
+                    <label>Basse saison</label>
+                    <input type="number" id="priceLow" min="0" value="60">
+                    <span>€</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Onglet Récapitulatif -->
+<section id="summary" class="tab">
+    <div class="summary-header">
+        <h2>Récapitulatif annuel</h2>
+        <button id="exportPdfBtn" class="export-btn">📤 Exporter en PDF</button>
+    </div>
+    <!-- 🏆 KPI HÉROS : le chiffre qui compte -->
+    <div class="hero-kpi">
+        <div class="hero-card cashflow">
+            <div class="hero-label">💰 Cash-flow annuel</div>
+            <div class="hero-value" id="statCashflow">0 €</div>
+            <div class="hero-sub" id="statCashflowMonthly">0 € / mois</div>
+        </div>
+        <div class="hero-card revenue">
+            <div class="hero-label">📈 CA Brut estimé</div>
+            <div class="hero-value" id="statRevenue">0 €</div>
+            <div class="hero-sub">sur l'année</div>
+        </div>
+    </div>
+
+    <!-- 📅 BLOC 1 : Activité locative -->
+    <h3 class="section-title">📅 Activité locative</h3>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Jours occupés</div>
+            <div class="stat-value" id="statDays">0</div>
+            <div class="stat-sub" id="statDaysDetail">/ 365 jours</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Taux d'occupation</div>
+            <div class="stat-value" id="statRate">0%</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">💶 Prix moyen / nuit ouverte</div>
+            <div class="stat-value" id="statAvgPrice">0 €</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">🛏️ Prix moyen / nuit louée</div>
+            <div class="stat-value" id="statAvgPriceRented">0 €</div>
+        </div>
+    </div>
+
+    <!-- 💸 BLOC 2 : Flux financiers -->
+    <h3 class="section-title">💸 Flux financiers</h3>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Charges annuelles</div>
+            <div class="stat-value negative" id="statCharges">0 €</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Mensualités prêt (annuel)</div>
+            <div class="stat-value negative" id="statLoan">0 €</div>
+        </div>
+    </div>
+
+    <!-- 📊 BLOC 3 : Performance / Rentabilité -->
+    <h3 class="section-title">📊 Performance</h3>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Rentabilité brute</div>
+            <div class="stat-value" id="statGrossYield">0%</div>
+            <div class="stat-sub">CA / Coût total</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Rentabilité nette</div>
+            <div class="stat-value" id="statNetYield">0%</div>
+            <div class="stat-sub">(CA - charges) / Coût total</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Point mort</div>
+            <div class="stat-value" id="statBreakeven">0 j</div>
+            <div class="stat-sub">Jours pour être rentable</div>
+        </div>
+    </div>
+
+    <!-- 🎯 BLOC 4 : Projection / Aide à la décision -->
+    <h3 class="section-title">🎯 Projection d'investissement</h3>
+    <div class="stats-grid">
+        <div class="stat-card projection">
+            <div class="stat-label">💰 Prix Max du bien</div>
+            <div class="stat-value" id="statBreakevenPrice">0 €</div>
+            <div class="stat-detail">pour cashflow ≥ 0</div>
+            <div class="stat-detail" id="statBreakevenPriceDetail">—</div>
+        </div>
+        <div class="stat-card projection">
+            <div class="stat-label">🏦 Emprunt max</div>
+            <div class="stat-value" id="statBreakevenMaxLoan">—</div>
+            <div class="stat-detail">capacité à cashflow = 0</div>
+        </div>
+        <div class="stat-card projection">
+            <div class="stat-label">🏷️ Tarif moyen cible</div>
+            <div class="stat-value" id="statBreakevenPrice2">0 €</div>
+            <div class="stat-detail">pour couvrir charges + prêt</div>
+        </div>
+    </div>
+
+    <!-- 🗓️ Détail par saison -->
+    <div class="breakdown">
+        <h3>Détail par saison</h3>
+        <div class="breakdown-row"><span class="dot red"></span> Haute saison : <strong id="bdHigh">0 jours - 0 €</strong></div>
+        <div class="breakdown-row"><span class="dot orange"></span> Moyenne saison : <strong id="bdMedium">0 jours - 0 €</strong></div>
+        <div class="breakdown-row"><span class="dot blue"></span> Basse saison : <strong id="bdLow">0 jours - 0 €</strong></div>
+    </div>
+</section>
+
+        <!-- Onglet Simulations -->
+        <section id="simulations" class="tab">
+            <h2>Mes simulations</h2>
+            <div class="sim-actions">
+                <input type="text" id="simName" placeholder="Nom de la simulation...">
+                <button id="saveSim" class="btn-primary">💾 Sauvegarder</button>
+                <button id="newSim" class="btn-secondary">➕ Nouvelle</button>
+            </div>
+            <div id="simList" class="sim-list"></div>
+        </section>
+        <!-- Onglet Charges -->
+<section id="charges" class="tab">
+    <h2>Charges d'exploitation</h2>
+    <p class="subtitle">Définissez vos charges récurrentes ou ponctuelles</p>
+    
+    <div class="charges-container">
+        <div class="charges-header">
+            <span>Libellé</span>
+            <span>Montant (€)</span>
+            <span>Type</span>
+            <span></span>
+        </div>
+        <div id="chargesList"></div>
+        <button id="addCharge" class="btn-add">➕ Ajouter une charge</button>
+    </div>
+
+    <div class="charges-summary">
+        <div class="charge-stat">
+            <span>Total mensuel</span>
+            <strong id="totalMonthly">0 €</strong>
+        </div>
+        <div class="charge-stat">
+            <span>Total ponctuel</span>
+            <strong id="totalOneShot">0 €</strong>
+        </div>
+        <div class="charge-stat highlight">
+            <span>Charges annuelles</span>
+            <strong id="totalAnnual">0 €</strong>
+        </div>
+    </div>
+</section>
+
+<!-- Onglet Financement -->
+<section id="loan" class="tab">
+    <h2>Financement & Investissement</h2>
+    
+    <div class="loan-grid">
+        <div class="loan-card">
+            <h3>💰 Acquisition</h3>
+            <div class="input-row">
+                <label>Prix du bien</label>
+                <input type="number" id="propertyPrice" min="0" value="200000">
+                <span>€</span>
+            </div>
+          <div class="input-row">
+             <label>Frais de notaire <small>(8%)</small></label>
+             <input type="number" id="notaryFees" value="0" readonly>
+                <span>€</span>
+            </div>
+
+            <div class="input-row">
+                <label>Travaux</label>
+                <input type="number" id="works" min="0" value="10000">
+                <span>€</span>
+            </div>
+            <div class="input-row">
+                <label>Ameublement</label>
+                <input type="number" id="furniture" min="0" value="8000">
+                <span>€</span>
+            </div>
+        </div>
+
+        <div class="loan-card">
+            <h3>🏦 Prêt bancaire</h3>
+            <div class="input-row">
+                <label>Apport personnel</label>
+                <input type="number" id="downPayment" min="0" value="30000">
+                <span>€</span>
+            </div>
+            <div class="input-row">
+                <label>Taux d'intérêt</label>
+                <input type="number" id="loanRate" min="0" step="0.01" value="3.5">
+                <span>%</span>
+            </div>
+            <div class="input-row">
+                <label>Durée du prêt</label>
+                <input type="number" id="loanDuration" min="1" max="30" value="20">
+                <span>ans</span>
+            </div>
+            <div class="input-row">
+                <label>Assurance emprunteur</label>
+                <input type="number" id="insuranceRate" min="0" step="0.01" value="0.36">
+                <span>%</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="loan-summary">
+        <h3>📊 Synthèse du financement</h3>
+        <div class="loan-stats">
+            <div class="loan-stat">
+                <span>Coût total du projet</span>
+                <strong id="totalCost">0 €</strong>
+            </div>
+            <div class="loan-stat">
+                <span>Montant emprunté</span>
+                <strong id="loanAmount">0 €</strong>
+            </div>
+            <div class="loan-stat highlight">
+                <span>Mensualité (assurance incluse)</span>
+                <strong id="monthlyPayment">0 €</strong>
+            </div>
+            <div class="loan-stat">
+                <span>Coût total du crédit</span>
+                <strong id="totalLoanCost">0 €</strong>
+            </div>
+            <div class="loan-stat">
+                <span>Total intérêts</span>
+                <strong id="totalInterests">0 €</strong>
+            </div>
+        </div>
+    </div>
+</section>
+
+    </main>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="js/state.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/calendar.js"></script>
+    <script src="js/pricing.js"></script>
+    <script src="js/charges.js"></script>
+    <script src="js/loan.js"></script>
+    <script src="js/simulations.js"></script>
+    <script src="js/export.js"></script>
+    <script src="js/init.js"></script>
+
+</body>
+</html>
