@@ -24,7 +24,11 @@
     <main>
         <!-- Onglet Calendrier -->
         <section id="calendar" class="tab active">
-            <div class="toolbar">
+            <div class="mode-toggle">
+                <button id="modeCalendar" class="mode-btn active">📅 Mode Calendrier</button>
+                <button id="modeQuick" class="mode-btn">⚡ Mode Remplissage rapide</button>
+            </div>
+            <div class="toolbar" id="calendarToolbar">
                 <div class="season-picker">
                     <label>Saison sélectionnée :</label>
                     <button class="season-btn red active" data-season="high">Haute</button>
@@ -37,39 +41,63 @@
                     <span id="currentYear">2025</span>
                     <button id="nextYear">▶</button>
                 </div>
-                <div class="quick-fill">
-    <h3>⚡ Remplissage rapide</h3>
-    <p class="subtitle">Définissez le nombre de jours par saison, le calendrier sera rempli automatiquement</p>
-    <div class="quick-grid">
-        <div class="quick-item">
-            <span class="dot red"></span>
-            <label>Haute saison</label>
-            <input type="number" id="qfHigh" min="0" max="366" value="0">
-            <span class="unit">jours</span>
-        </div>
-        <div class="quick-item">
-            <span class="dot orange"></span>
-            <label>Moyenne saison</label>
-            <input type="number" id="qfMedium" min="0" max="366" value="0">
-            <span class="unit">jours</span>
-        </div>
-        <div class="quick-item">
-            <span class="dot blue"></span>
-            <label>Basse saison</label>
-            <input type="number" id="qfLow" min="0" max="366" value="0">
-            <span class="unit">jours</span>
-        </div>
-        <div class="quick-item highlight-item">
-            <label>📊 Taux d'occupation</label>
-            <input type="number" id="qfRate" min="0" max="100" step="0.1" value="0">
-            <span class="unit">%</span>
-        </div>
-    </div>
-    <div class="quick-actions">
-        <button id="qfApply" class="btn-primary">Appliquer au calendrier</button>
-        <button id="qfReset" class="btn-secondary">Réinitialiser</button>
-    </div>
-</div>
+            </div>
+            <div class="quick-fill" id="quickFillSection">
+                <h3>⚡ Remplissage rapide</h3>
+
+                <div class="quick-fill-grid">
+                    <div class="quick-fill-item high">
+                        <label>🔴 Haute saison</label>
+                        <div class="qf-row">
+                            <span>Jours :</span>
+                            <input type="number" id="qfHigh" min="0" max="365" value="100">
+                        </div>
+                        <div class="qf-row">
+                            <span>Occupation :</span>
+                            <input type="number" id="qfOccHigh" min="0" max="100" value="50">
+                            <span>%</span>
+                        </div>
+                    </div>
+
+                    <div class="quick-fill-item medium">
+                        <label>🟠 Moyenne saison</label>
+                        <div class="qf-row">
+                            <span>Jours :</span>
+                            <input type="number" id="qfMedium" min="0" max="365" value="100">
+                        </div>
+                        <div class="qf-row">
+                            <span>Occupation :</span>
+                            <input type="number" id="qfOccMedium" min="0" max="100" value="50">
+                            <span>%</span>
+                        </div>
+                    </div>
+
+                    <div class="quick-fill-item low">
+                        <label>🔵 Basse saison</label>
+                        <div class="qf-row">
+                            <span>Jours :</span>
+                            <input type="number" id="qfLow" min="0" max="365" value="160">
+                        </div>
+                        <div class="qf-row">
+                            <span>Occupation :</span>
+                            <input type="number" id="qfOccLow" min="0" max="100" value="50">
+                            <span>%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="qf-average">
+                    📊 Taux d'occupation moyen : <strong id="qfAvgRate">0.0</strong> %
+                    <small>(calculé automatiquement)</small>
+                </div>
+
+                <div class="qf-actions">
+                    <button id="qfReset" class="btn-secondary">Réinitialiser</button>
+                </div>
+                <div class="quick-actions" style="margin-top: 1rem; text-align: center;">
+                    <button id="qfApply" class="btn-primary">✅ Appliquer le calcul</button>
+                </div>
+
             </div>
             <div id="calendarContainer"></div>
         </section>
@@ -100,8 +128,27 @@
         </section>
 
         <!-- Onglet Récapitulatif -->
-        <section id="summary" class="tab">
-    <h2>Récapitulatif annuel</h2>
+<section id="summary" class="tab">
+    <div class="summary-header">
+        <h2>Récapitulatif annuel</h2>
+        <button id="exportPdfBtn" class="export-btn">📤 Exporter en PDF</button>
+    </div>
+    <!-- 🏆 KPI HÉROS : le chiffre qui compte -->
+    <div class="hero-kpi">
+        <div class="hero-card cashflow">
+            <div class="hero-label">💰 Cash-flow annuel</div>
+            <div class="hero-value" id="statCashflow">0 €</div>
+            <div class="hero-sub" id="statCashflowMonthly">0 € / mois</div>
+        </div>
+        <div class="hero-card revenue">
+            <div class="hero-label">📈 CA Brut estimé</div>
+            <div class="hero-value" id="statRevenue">0 €</div>
+            <div class="hero-sub">sur l'année</div>
+        </div>
+    </div>
+
+    <!-- 📅 BLOC 1 : Activité locative -->
+    <h3 class="section-title">📅 Activité locative</h3>
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-label">Jours occupés</div>
@@ -112,12 +159,18 @@
             <div class="stat-label">Taux d'occupation</div>
             <div class="stat-value" id="statRate">0%</div>
         </div>
-        <div class="stat-card highlight">
-            <div class="stat-label">CA Brut estimé</div>
-            <div class="stat-value" id="statRevenue">0 €</div>
+        <div class="stat-card">
+            <div class="stat-label">💶 Prix moyen / nuit ouverte</div>
+            <div class="stat-value" id="statAvgPrice">0 €</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">🛏️ Prix moyen / nuit louée</div>
+            <div class="stat-value" id="statAvgPriceRented">0 €</div>
         </div>
     </div>
 
+    <!-- 💸 BLOC 2 : Flux financiers -->
+    <h3 class="section-title">💸 Flux financiers</h3>
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-label">Charges annuelles</div>
@@ -127,13 +180,10 @@
             <div class="stat-label">Mensualités prêt (annuel)</div>
             <div class="stat-value negative" id="statLoan">0 €</div>
         </div>
-        <div class="stat-card highlight-green">
-            <div class="stat-label">Cash-flow annuel</div>
-            <div class="stat-value" id="statCashflow">0 €</div>
-            <div class="stat-sub" id="statCashflowMonthly">0 € / mois</div>
-        </div>
     </div>
 
+    <!-- 📊 BLOC 3 : Performance / Rentabilité -->
+    <h3 class="section-title">📊 Performance</h3>
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-label">Rentabilité brute</div>
@@ -152,6 +202,28 @@
         </div>
     </div>
 
+    <!-- 🎯 BLOC 4 : Projection / Aide à la décision -->
+    <h3 class="section-title">🎯 Projection d'investissement</h3>
+    <div class="stats-grid">
+        <div class="stat-card projection">
+            <div class="stat-label">💰 Prix Max du bien</div>
+            <div class="stat-value" id="statBreakevenPrice">0 €</div>
+            <div class="stat-detail">pour cashflow ≥ 0</div>
+            <div class="stat-detail" id="statBreakevenPriceDetail">—</div>
+        </div>
+        <div class="stat-card projection">
+            <div class="stat-label">🏦 Emprunt max</div>
+            <div class="stat-value" id="statBreakevenMaxLoan">—</div>
+            <div class="stat-detail">capacité à cashflow = 0</div>
+        </div>
+        <div class="stat-card projection">
+            <div class="stat-label">🏷️ Tarif moyen cible</div>
+            <div class="stat-value" id="statBreakevenPrice2">0 €</div>
+            <div class="stat-detail">pour couvrir charges + prêt</div>
+        </div>
+    </div>
+
+    <!-- 🗓️ Détail par saison -->
     <div class="breakdown">
         <h3>Détail par saison</h3>
         <div class="breakdown-row"><span class="dot red"></span> Haute saison : <strong id="bdHigh">0 jours - 0 €</strong></div>
@@ -288,6 +360,15 @@
 
     <div id="toast" class="toast"></div>
 
-    <script src="script.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/calendar.js"></script>
+    <script src="js/pricing.js"></script>
+    <script src="js/charges.js"></script>
+    <script src="js/loan.js"></script>
+    <script src="js/simulations.js"></script>
+    <script src="js/export.js"></script>
+    <script src="js/init.js"></script>
+
 </body>
 </html>

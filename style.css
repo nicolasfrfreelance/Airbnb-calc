@@ -500,3 +500,244 @@ h3 { margin-bottom: 1rem; }
 .btn-secondary:hover { background: var(--border); }
 
 input[readonly] { background: var(--bg); color: var(--muted); cursor: not-allowed; }
+.qf-average {
+    margin: 15px 0;
+    padding: 12px;
+    background: #f0f4ff;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1.05em;
+}
+.qf-average small {
+    color: #888;
+    margin-left: 8px;
+    font-size: 0.85em;
+}
+.mode-toggle {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    justify-content: center;
+}
+.mode-btn {
+    padding: 0.7rem 1.4rem;
+    border: 2px solid var(--border);
+    background: var(--card);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--muted);
+    transition: all 0.2s;
+}
+.mode-btn:hover { border-color: var(--primary); color: var(--primary); }
+.mode-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+.hidden { display: none !important; }
+
+/* QUICK FILL GRID en ligne */
+.quick-fill-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 1rem 0;
+}
+.quick-fill-item {
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+}
+.quick-fill-item.high   { border-color: var(--red); }
+.quick-fill-item.medium { border-color: var(--orange); }
+.quick-fill-item.low    { border-color: var(--blue); }
+.quick-fill-item label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 0.7rem;
+    font-size: 0.95rem;
+}
+.qf-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.4rem;
+    font-size: 0.9rem;
+}
+.qf-row span:first-child { flex: 1; color: var(--muted); }
+.qf-row input {
+    width: 70px;
+    padding: 0.35rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    text-align: right;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 700px) {
+    .quick-fill-grid { grid-template-columns: 1fr; }
+}
+/* ===== RÉCAPITULATIF — Nouvelle disposition ===== */
+
+/* Titres de section */
+.section-title {
+    margin: 2rem 0 1rem;
+    padding-bottom: .5rem;
+    border-bottom: 2px solid #e5e7eb;
+    font-size: 1.1rem;
+    color: #374151;
+}
+
+/* 🏆 KPI Héros (Cashflow + CA en grand) */
+.hero-kpi {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.hero-card {
+    padding: 1.5rem;
+    border-radius: 14px;
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(0,0,0,.12);
+    position: relative;
+    overflow: hidden;
+}
+.hero-card.cashflow {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+.hero-card.revenue {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+.hero-label {
+    font-size: .95rem;
+    opacity: .9;
+    margin-bottom: .5rem;
+}
+.hero-value {
+    font-size: 2.4rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+.hero-sub {
+    font-size: .9rem;
+    opacity: .85;
+    margin-top: .35rem;
+}
+
+/* Tuile "projection" — visuel distinct */
+.stat-card.projection {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-left: 4px solid #f59e0b;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .hero-value { font-size: 1.8rem; }}
+/* ===== Bouton export ===== */
+.summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.export-btn {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: #fff;
+    border: none;
+    padding: .7rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    box-shadow: 0 4px 12px rgba(99,102,241,.3);
+}
+.export-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(99,102,241,.4);
+}
+
+/* ===== STYLES IMPRESSION / PDF ===== */
+@media print {
+    /* Masquer tout ce qui n'est pas utile */
+    header nav,
+    .mode-toggle,
+    .toolbar,
+    .export-btn,
+    #toast {
+        display: none !important;
+    }
+
+    /* Afficher uniquement le récap */
+    .tab { display: none !important; }
+    #summary.tab { display: block !important; }
+
+    /* Réinitialiser les couleurs pour économiser l'encre */
+    body {
+        background: #fff !important;
+        color: #000 !important;
+        font-size: 11pt;
+    }
+
+    header {
+        border-bottom: 2px solid #333;
+        margin-bottom: 1rem;
+        padding-bottom: .5rem;
+    }
+    header h1 {
+        font-size: 18pt;
+    }
+
+    /* Conserver les couleurs des KPI héros (option) */
+    .hero-card {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        color: #fff !important;
+        page-break-inside: avoid;
+    }
+
+    .stat-card {
+        border: 1px solid #ddd !important;
+        page-break-inside: avoid;
+        box-shadow: none !important;
+    }
+
+    .stats-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: .5rem !important;
+    }
+
+    .hero-kpi {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .section-title {
+        page-break-after: avoid;
+        margin-top: 1rem;
+    }
+
+    .breakdown {
+        page-break-inside: avoid;
+        margin-top: 1rem;
+        border: 1px solid #ddd;
+        padding: 1rem;
+        border-radius: 8px;
+    }
+
+    /* Forcer l'affichage des couleurs des dots */
+    .dot {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Pied de page avec date */
+    @page {
+        margin: 1.5cm;
+    }
+}
